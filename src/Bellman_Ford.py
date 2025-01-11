@@ -4,17 +4,50 @@ import math
 import re
 
 class Graph:
+    """
+    Класс для представления графа и реализации алгоритма Форда-Беллмана.
+
+    Атрибуты:
+        M (int): Общее количество вершин в графе.
+        graph (list): Список рёбер графа, каждое ребро представлено списком [a, b, c],
+                      где a и b - индексы вершин, c - вес ребра.
+        vertex_names (list): Список названий вершин.
+    """
+
     def __init__(self, vertices):
+        """
+        Инициализирует новый экземпляр класса Graph.
+
+        Аргументы:
+            vertices (int): Общее количество вершин в графе.
+        """
         self.M = vertices   # Общее количество вершин в графе
         self.graph = []     # Список рёбер
         self.vertex_names = []  # Список названий вершин
 
-    # Добавление ребра
     def add_edge(self, a, b, c):
+        """
+        Добавляет ребро в граф.
+
+        Аргументы:
+            a (int): Индекс начальной вершины.
+            b (int): Индекс конечной вершины.
+            c (int): Вес ребра.
+        """
         self.graph.append([a, b, c])
 
-    # Печать решения с путями
     def print_solution(self, distance, predecessor, vertex_names):
+        """
+        Формирует строку с результатами кратчайших расстояний и путей от источника.
+
+        Аргументы:
+            distance (list): Список расстояний до каждой вершины.
+            predecessor (list): Список предшествующих вершин для восстановления путей.
+            vertex_names (list): Список названий вершин.
+
+        Возвращает:
+            str: Строка с таблицей результатов.
+        """
         result = "Вершина\tРасстояние\tПуть от Источника\n"
         for k in range(self.M):
             path = self.get_path(k, predecessor, vertex_names)
@@ -22,16 +55,35 @@ class Graph:
             result += f"{vertex_names[k]}\t\t{distance_str}\t\t{path}\n"
         return result
 
-    # Восстановление пути от источника до вершины
     def get_path(self, vertex, predecessor, vertex_names):
+        """
+        Восстанавливает путь от источника до заданной вершины.
+
+        Аргументы:
+            vertex (int): Индекс конечной вершины.
+            predecessor (list): Список предшествующих вершин для восстановления путей.
+            vertex_names (list): Список названий вершин.
+
+        Возвращает:
+            str: Путь от источника до вершины в виде строковой последовательности названий.
+        """
         path = []
         while vertex is not None:
             path.insert(0, vertex_names[vertex])
             vertex = predecessor[vertex]
         return " -> ".join(path)
 
-    # Алгоритм Форда-Беллмана
     def bellman_ford(self, src):
+        """
+        Реализует алгоритм Форда-Беллмана для нахождения кратчайших путей от источника.
+
+        Аргументы:
+            src (int): Индекс источника (начальной вершины).
+
+        Возвращает:
+            tuple: Кортеж, содержащий статус выполнения алгоритма (bool) и результат
+                   или сообщение об ошибке (str).
+        """
         distance = [float("Inf")] * self.M
         predecessor = [None] * self.M
         distance[src] = 0
@@ -50,14 +102,31 @@ class Graph:
 
         return (True, self.print_solution(distance, predecessor, vertex_names=self.vertex_names))
 
+
 class BellmanFordGUI:
+    """
+    Класс для создания графического интерфейса пользователя (GUI) для алгоритма Форда-Беллмана.
+
+    Атрибуты:
+        root (tk.Tk): Главное окно приложения.
+        vertex_count (int): Количество вершин в графе.
+        vertex_names (list): Список названий вершин.
+        graph_instance (Graph): Экземпляр класса Graph для работы с графом.
+    """
+
     def __init__(self):
+        """
+        Инициализирует новое окно GUI и создает основное окно приложения.
+        """
         self.root = tk.Tk()
         self.root.title("Алгоритм Форда-Беллмана")
         self.root.geometry("800x600")
         self.create_main_window()
 
     def create_main_window(self):
+        """
+        Создает главное окно для ввода количества вершин и их названий.
+        """
         # Инструкция
         instruction = tk.Label(self.root,
                                text="Инструкция:\n'-' заменяется на 0\n'б' заменяется на бесконечность (999)\n"
@@ -83,6 +152,9 @@ class BellmanFordGUI:
         tk.Button(self.root, text="Продолжить", command=self.show_edge_input_page, font=('Arial', 12, 'bold')).pack(pady=20)
 
     def show_edge_input_page(self):
+        """
+        Обрабатывает ввод количества вершин и их названий, затем переходит к вводу рёбер.
+        """
         try:
             self.vertex_count = int(self.vertices_entry.get())
             self.vertex_names = [name.strip() for name in self.names_entry.get().split(',')]
@@ -105,6 +177,9 @@ class BellmanFordGUI:
         self.create_edge_input_page()
 
     def create_edge_input_page(self):
+        """
+        Создает окно для ввода рёбер графа.
+        """
         # Инструкция
         instruction = tk.Label(self.root,
                                text="Введите рёбра графа в формате:\n"
@@ -122,6 +197,9 @@ class BellmanFordGUI:
         tk.Button(self.root, text="Рассчитать", command=self.process_edges, font=('Arial', 12, 'bold')).pack(pady=10)
 
     def process_edges(self):
+        """
+        Обрабатывает ввод рёбер, проверяет корректность формата и добавляет рёбра в граф.
+        """
         raw_input = self.edges_text.get("1.0", tk.END).strip()
         if not raw_input:
             messagebox.showerror("Ошибка", "Пожалуйста, введите хотя бы одно ребро.")
@@ -174,11 +252,14 @@ class BellmanFordGUI:
         self.calculate_bellman_ford()
 
     def calculate_bellman_ford(self):
+        """
+        Запускает алгоритм Форда-Беллмана и отображает результаты.
+        """
         status, result = self.graph_instance.bellman_ford(0)  # Источник - первая вершина
 
         # Создание окна с результатами
         result_window = tk.Toplevel(self.root)
-        result_window.title("Результаты Алгоритма Форда-Беллмана")
+        result_window.title("Результаты работы алгоритма Форда-Беллмана")
 
         canvas = tk.Canvas(result_window, width=800, height=600, bg='white')
         canvas.pack(pady=10)

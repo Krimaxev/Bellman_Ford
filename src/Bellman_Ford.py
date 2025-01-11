@@ -3,6 +3,7 @@ from tkinter import messagebox
 import math
 import re
 
+
 class Graph:
     """
     Класс для представления графа и реализации алгоритма Форда-Беллмана.
